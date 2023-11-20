@@ -3,6 +3,8 @@ package cps510.carrentaldbms.Service;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -30,8 +32,20 @@ public class TableService {
         return tableName.toUpperCase() + " successfully dropped!";
     }
 
-    public List<Map<String, Object>> getTableContent(String tableName) {
+    public List<Map<String, Object>> tableContent(String tableName) {
         String sql = "SELECT * FROM " + tableName;
         return jdbcTemplate.queryForList(sql);
+    }
+
+    public List<List<Map<String, Object>>> queryResults() {
+        ArrayList<String> queries = new ArrayList<>(Arrays.asList(
+
+        ));
+        List<List<Map<String, Object>>> results = new ArrayList<>();
+        queries.forEach(query -> {
+            List<Map<String, Object>> queryResult = jdbcTemplate.queryForList(query);
+            results.add(queryResult);
+        });
+        return results;
     }
 }
