@@ -45,7 +45,7 @@ public class TableService {
                     "c.YEAR,\n" +
                     "c.PRICE\n" +
                     "FROM CAR c\n" +
-                    "ORDER BY PRIC"
+                    "ORDER BY PRICE"
         ));
         List<List<Map<String, Object>>> results = new ArrayList<>();
         queries.forEach(query -> {
