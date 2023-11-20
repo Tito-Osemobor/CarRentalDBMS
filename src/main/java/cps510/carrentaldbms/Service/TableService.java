@@ -52,7 +52,8 @@ public class TableService {
                         "c.AGREEMENT_ID,\n" +
                         "c. CREDENTIAL\n" +
                         "FROM CUSTOMER c\n" +
-                        "where c.AGREEMENT_ID is not null;"
+                        "where c.AGREEMENT_ID is not null;",
+
         ));
         List<List<Map<String, Object>>> results = new ArrayList<>();
         queries.forEach(query -> {
