@@ -45,7 +45,14 @@ public class TableService {
                     "c.YEAR,\n" +
                     "c.PRICE\n" +
                     "FROM CAR c\n" +
-                    "ORDER BY PRICE;"
+                    "ORDER BY PRICE;",
+                "SELECT\n" +
+                        "c.EMAIL,\n" +
+                        "c.PHONE_NUMBER,\n" +
+                        "c.AGREEMENT_ID,\n" +
+                        "c. CREDENTIAL\n" +
+                        "FROM CUSTOMER c\n" +
+                        "where c.AGREEMENT_ID is not null;"
         ));
         List<List<Map<String, Object>>> results = new ArrayList<>();
         queries.forEach(query -> {
