@@ -1,0 +1,11 @@
+CREATE VIEW "Car Mileage less than 2000km" AS
+    SELECT c.make || ' ' || c.MODEL as CAR, MILEAGE
+    FROM CAR c
+    WHERE TO_NUMBER(REGEXP_SUBSTR(mileage, '\d+')) <= 2000;
+
+CREATE VIEW "Number of Cars per Make" AS
+    SELECT DISTINCT MAKE,COUNT(MAKE) as model_count
+    FROM CAR
+    GROUP BY MAKE;
+
+
