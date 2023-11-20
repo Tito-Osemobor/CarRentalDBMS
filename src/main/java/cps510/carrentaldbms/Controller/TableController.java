@@ -27,7 +27,7 @@ public class TableController {
 
     @GetMapping("/{tableName}")
     public ResponseEntity<?> getTableContent(@PathVariable String tableName) {
-        return ResponseEntity.ok(tableService.getTableContent(tableName));
+        return ResponseEntity.ok(tableService.tableContent(tableName));
     }
 
     @PostMapping("/new")
@@ -38,5 +38,10 @@ public class TableController {
     @DeleteMapping("/drop")
     public ResponseEntity<?> dropTable(@RequestParam String tableName) {
         return ResponseEntity.ok(tableService.dropTable(tableName));
+    }
+
+    @GetMapping("/queries")
+    public ResponseEntity<?> getQueryResults() {
+        return ResponseEntity.ok(tableService.queryResults());
     }
 }
