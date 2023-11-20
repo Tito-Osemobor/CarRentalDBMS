@@ -1,6 +1,6 @@
 package cps510.carrentaldbms.Controller;
 
-import Entity.TableRequest;
+import cps510.carrentaldbms.Entity.TableRequest;
 import cps510.carrentaldbms.Service.TableService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
