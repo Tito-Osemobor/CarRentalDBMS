@@ -39,7 +39,13 @@ public class TableService {
 
     public List<List<Map<String, Object>>> queryResults() {
         ArrayList<String> queries = new ArrayList<>(Arrays.asList(
-
+            "SELECT\n" +
+                    "c.MAKE,\n" +
+                    "c.MODEL,\n" +
+                    "c.YEAR,\n" +
+                    "c.PRICE\n" +
+                    "FROM CAR c\n" +
+                    "ORDER BY PRICE"
         ));
         List<List<Map<String, Object>>> results = new ArrayList<>();
         queries.forEach(query -> {
