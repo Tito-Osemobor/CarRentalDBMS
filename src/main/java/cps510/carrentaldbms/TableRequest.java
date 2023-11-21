@@ -1,4 +1,4 @@
-package cps510.carrentaldbms.Entity;
+package cps510.carrentaldbms;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

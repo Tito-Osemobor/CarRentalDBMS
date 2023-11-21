@@ -1,4 +1,4 @@
-package cps510.carrentaldbms.Service;
+package cps510.carrentaldbms;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
