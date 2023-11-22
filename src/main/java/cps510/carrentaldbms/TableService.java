@@ -7,7 +7,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+/*
+ * This is a service layer class. Used to interact with our database!
+ */
 @Service
 public class TableService {
     private final JdbcTemplate jdbcTemplate;
@@ -16,27 +20,49 @@ public class TableService {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    /*
+     * @param NULL
+     * @Description - Gets all the names of Tables in our database
+     */
     public List<String> getAllTableNames() {
+        // Getting all tables were the owner is 'OOSEMOBO'
         String query = "SELECT table_name FROM all_tables WHERE owner = 'OOSEMOBO'";
         return jdbcTemplate.queryForList(query, String.class);
     }
 
+    /*
+     * @param tableName - Name of the table you are creating
+     * @param sql - Contains the SQL code that creates the table in question
+     * @Description - Creates a new table in our database
+     */
     public String createNewTable(String tableName, String sql) {
         jdbcTemplate.execute(sql);
         return tableName.toUpperCase() + " successfully created!";
     }
 
+    /*
+     * @param tableName - Name of the table you are dropping
+     * @Description - Drops the table from our database
+     */
     public String dropTable(String tableName) {
         String dropTableSQL = "DROP TABLE " + tableName;
         jdbcTemplate.execute(dropTableSQL);
         return tableName.toUpperCase() + " successfully dropped!";
     }
 
+    /*
+     * @param tableName - Name of the table trying to obtain data about
+     * @Description - Gets all records from a particular table
+     */
     public List<Map<String, Object>> tableContent(String tableName) {
         String sql = "SELECT * FROM " + tableName;
         return jdbcTemplate.queryForList(sql);
     }
 
+    /*
+     * @param NULL
+     * @Description - Returns the results of all the advances queries created for Assignment 4
+     */
     public List<List<Map<String, Object>>> queryResults() {
         ArrayList<String> queries = new ArrayList<>(Arrays.asList(
                 """
@@ -148,5 +174,23 @@ public class TableService {
             results.add(queryResult);
         });
         return results;
+    }
+
+    public String addRecord(String tableName, Map<String, Object> record) {
+        String columns = String.join(", ", record.keySet());
+        String values = record.keySet().stream()
+                .map(key -> "?")
+                .collect(Collectors.joining(", "));
+
+        String insertSql = "INSERT INTO " + tableName + " (" + columns + ") VALUES (" + values + ")";
+        Object[] params = record.values().toArray();
+
+        jdbcTemplate.update(insertSql, params);
+        return "Record added successfully!";
+    }
+
+    public List<String> tableColumns(String tableName) {
+        String sql = "SELECT COLUMN_NAME FROM USER_TAB_COLUMNS WHERE TABLE_NAME = ?";
+        return jdbcTemplate.queryForList(sql, String.class, tableName);
     }
 }
