@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /*
  * This method services as the API controller.
@@ -35,6 +36,11 @@ public class TableController {
         return ResponseEntity.ok(tableService.tableContent(tableName));
     }
 
+    @GetMapping("/{tableName}/columns")
+    public ResponseEntity<?> getTableColumns(@PathVariable String tableName) {
+        return ResponseEntity.ok(tableService.tableColumns(tableName));
+    }
+
     // This "/new" endpoint is used to create tables in our database
     @PostMapping("/new")
     public ResponseEntity<?> createNewTable(@RequestBody TableRequest tableRequest) {
@@ -53,4 +59,11 @@ public class TableController {
         return ResponseEntity.ok(tableService.queryResults());
     }
 
+    @PostMapping("/{tableName}/new")
+    public ResponseEntity<?> addNewRecord(@PathVariable String tableName,
+                                          @RequestBody Map<String, Object> record) {
+        return ResponseEntity.ok(tableService.addRecord(tableName, record));
+    }
+
+//    @PostMapping
 }
