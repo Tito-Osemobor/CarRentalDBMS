@@ -1,6 +1,8 @@
 package cps510.carrentaldbms;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -15,9 +17,11 @@ import java.util.stream.Collectors;
 @Service
 public class TableService {
     private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    public TableService(JdbcTemplate jdbcTemplate) {
+    public TableService(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
     }
 
     /*
@@ -176,6 +180,11 @@ public class TableService {
         return results;
     }
 
+    /*
+     * @param tableName - Name of the table adding record to
+     * @param record - Content of the new record we are adding
+     * @Description - Gets all records from a particular table
+     */
     public String addRecord(String tableName, Map<String, Object> record) {
         String columns = String.join(", ", record.keySet());
         String values = record.keySet().stream()
@@ -189,8 +198,91 @@ public class TableService {
         return "Record added successfully!";
     }
 
+    /*
+     * @param tableName - Name of the table trying to obtain data about
+     * @Description - Gets all names of the columns in that table
+     */
     public List<String> tableColumns(String tableName) {
         String sql = "SELECT COLUMN_NAME FROM USER_TAB_COLUMNS WHERE TABLE_NAME = ?";
         return jdbcTemplate.queryForList(sql, String.class, tableName);
+    }
+
+    /*
+     * @param tableName - Name of the table trying to obtain data about
+     * @param record - Content of the record we are trying to delete
+     * @Description - Using the content of the record a comparison is done on all the columns ensuring a perfect match
+     */
+    public String deleteRecord(String tableName,
+                               Map<String, Object> record) {
+        StringBuilder queryBuilder = new StringBuilder("DELETE FROM ");
+        queryBuilder.append(tableName).append(" WHERE ");
+
+        int columnIndex = 0;
+        for (Map.Entry<String, Object> entry : record.entrySet()) {
+            if (columnIndex > 0) {
+                queryBuilder.append(" AND ");
+            }
+            queryBuilder.append(entry.getKey());
+            if (entry.getValue() instanceof java.sql.Timestamp || entry.getValue() instanceof java.util.Date) {
+                queryBuilder.append(" = TO_TIMESTAMP_TZ(?, 'YYYY-MM-DD\"T\"HH24:MI:SS.FFTZO')");
+            } else {
+                queryBuilder.append(" = ?");
+            }
+            columnIndex++;
+        }
+        jdbcTemplate.update(queryBuilder.toString(), record.values().toArray());
+        return "Record deleted successfully!";
+    }
+
+    /*
+     * @param tableName - Name of the table from which you are updating a record from
+     * @param selectedRecord - Content of the record before being updated
+     * @param updatedRecord - Content of the record after being updated
+     * @Description - Using the content of the record a comparison is done on all the columns ensuring a perfect match and then set using
+     *                the new values of the updated record
+     */
+    public String updateRecord(String tableName,
+                               Map<String, Object> selectedRecord,
+                               Map<String, Object> updatedRecord) {
+        if (tableName == null || selectedRecord == null || updatedRecord == null || selectedRecord.isEmpty() || updatedRecord.isEmpty()) {
+            return "Invalid input parameters.";
+        }
+
+        StringBuilder queryBuilder = new StringBuilder("UPDATE ");
+        queryBuilder.append(tableName).append(" SET ");
+
+        int columnIndex = 0;
+        for (Map.Entry<String, Object> entry : updatedRecord.entrySet()) {
+            if (columnIndex > 0) {
+                queryBuilder.append(", ");
+            }
+            queryBuilder.append(entry.getKey()).append(" = :").append("new_").append(entry.getKey());
+            columnIndex++;
+        }
+
+        queryBuilder.append(" WHERE ");
+
+        columnIndex = 0;
+        for (Map.Entry<String, Object> entry : selectedRecord.entrySet()) {
+            if (columnIndex > 0) {
+                queryBuilder.append(" AND ");
+            }
+            queryBuilder.append(entry.getKey()).append(" = :").append("existing_").append(entry.getKey());
+            columnIndex++;
+        }
+
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+
+        for (Map.Entry<String, Object> entry : updatedRecord.entrySet()) {
+            parameters.addValue("new_" + entry.getKey(), entry.getValue());
+        }
+
+        for (Map.Entry<String, Object> entry : selectedRecord.entrySet()) {
+            parameters.addValue("existing_" + entry.getKey(), entry.getValue());
+        }
+
+        int rowsAffected = namedParameterJdbcTemplate.update(queryBuilder.toString(), parameters);
+
+        return rowsAffected > 0 ? "Record updated successfully!" : "No records updated.";
     }
 }
